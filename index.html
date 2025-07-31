@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Klik Balon Ceria</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(to top, #ccf2ff, #ffffff);
+      font-family: Comic Sans MS, sans-serif;
+    }
+    #gameArea {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+    .balloon {
+      position: absolute;
+      width: 80px;
+      height: 100px;
+      border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+      cursor: pointer;
+      animation: float 5s linear;
+    }
+    @keyframes float {
+      0% { transform: translateY(100vh); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(-120px); opacity: 0; }
+    }
+    #scoreBoard, #timer {
+      position: absolute;
+      top: 10px;
+      font-size: 24px;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    #scoreBoard { left: 10px; }
+    #timer { right: 10px; }
+    #restartBtn {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      font-size: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <audio id="popSound" src="pop.mp3" preload="auto"></audio>
+  <audio id="bgMusic" src="music.mp3" preload="auto" loop></audio>
+
+  <div id="gameArea"></div>
+  <div id="scoreBoard">Skor: 0</div>
+  <div id="timer">Waktu: 20</div>
+  <button id="restartBtn">Main Lagi</button>
+
+  <script>
+    const gameArea = document.getElementById("gameArea");
+    const scoreBoard = document.getElementById("scoreBoard");
+    const timerDisplay = document.getElementById("timer");
+    const popSound = document.getElementById("popSound");
+    const bgMusic = document.getElementById("bgMusic");
+    const restartBtn = document.getElementById("restartBtn");
+
+    let score = 0;
+    let timeLeft = 20;
+    let balloonInterval, countdown;
+
+    function createBalloon() {
+      const balloon = document.createElement("div");
+      balloon.classList.add("balloon");
+      const colors = ["red", "blue", "green", "yellow", "orange", "pink"];
+      balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      balloon.style.left = Math.random() * (window.innerWidth - 80) + "px";
+      balloon.style.bottom = "-100px";
+      gameArea.appendChild(balloon);
+
+      balloon.addEventListener("click", () => {
+        score++;
+        scoreBoard.innerText = "Skor: " + score;
+        popSound.currentTime = 0;
+        popSound.play();
+        balloon.remove();
+      });
+
+      setTimeout(() => {
+        if (document.body.contains(balloon)) balloon.remove();
+      }, 5000);
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 20;
+      scoreBoard.innerText = "Skor: 0";
+      timerDisplay.innerText = "Waktu: 20";
+      restartBtn.style.display = "none";
+
+      bgMusic.play();
+      balloonInterval = setInterval(createBalloon, 700);
+      countdown = setInterval(() => {
+        timeLeft--;
+        timerDisplay.innerText = "Waktu: " + timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(balloonInterval);
+          clearInterval(countdown);
+          bgMusic.pause();
+          alert("Waktu Habis! Skormu: " + score);
+          restartBtn.style.display = "block";
+        }
+      }, 1000);
+    }
+
+    restartBtn.addEventListener("click", startGame);
+
+    window.onload = () => {
+      alert("Klik balon sebanyak-banyaknya dalam 20 detik!");
+      startGame();
+    };
+  </script>
+</body>
+</html>
